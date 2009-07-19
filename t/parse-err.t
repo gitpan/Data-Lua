@@ -6,18 +6,27 @@ use warnings;
 use strict;
 
 
-plan tests => 5;
+plan tests => 8;
 
 
 use_ok("Data::Lua");
 
 
-foreach my $pair (
-    [ "s = 'bad"    =>  'parse error'  ],
-    [ undef         =>  'undef string' ],
-    [ ''            =>  'empty string' ],
-) {
-    my($in, $test_name) = @$pair;
-    my $vars = Data::Lua->parse($in);
-    is($vars, undef, $test_name);
+{
+    my $name = 'undef string';
+    my $vars = eval { Data::Lua->parse(undef) };
+    is($vars, undef,    "$name: vars is undef");
+    ok((not length $@), "$name: no exception");
+}
+{
+    my $name = 'empty string';
+    my $vars = eval { Data::Lua->parse('') };
+    is($vars, undef,    "$name: vars is undef");
+    ok((not length $@), "$name: no exception");
+}
+{
+    my $name = 'parse error';
+    my $vars = eval { Data::Lua->parse("s = 'bad") };
+    is($vars, undef, "$name: vars is undef");
+    ok(length $@,    "$name: exception raised");
 }
